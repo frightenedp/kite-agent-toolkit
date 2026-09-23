@@ -1,0 +1,6 @@
+[package]
+name = "kite-agent-toolkit"
+version = "0.1.0"
+edition = "2021"
+description = "Small reliability primitives for Kite payment agents"
+license = "MIT"
