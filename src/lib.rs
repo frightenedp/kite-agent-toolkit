@@ -31,10 +31,13 @@ pub fn classify_http(status: u16, attempt: u32) -> Outcome<()> {
     }
 }
 
+pub fn is_retryable(status: u16) -> bool { matches!(status, 408 | 425 | 429 | 500..=599) }
+
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test] fn retries_transient_responses() { assert!(matches!(classify_http(429, 2), Outcome::Retry { .. })); }
     #[test] fn caps_backoff() { assert_eq!(backoff(20, 250, 30_000), Duration::from_millis(30_000)); }
+    #[test] fn identifies_transient_statuses() { assert!(is_retryable(503)); assert!(!is_retryable(402)); }
     #[test] fn prevents_duplicate_submission() { let mut c = IdempotencyCache::new(); assert!(c.record("k", "ok").is_ok()); assert!(c.record("k", "again").is_err()); assert_eq!(c.replay("k"), Some("ok")); }
 }
